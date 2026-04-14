@@ -16,6 +16,41 @@ class TestData:
 
 
 class Solution:
+  def findMedianSortedArrays(
+      self, nums1: List[int], nums2: List[int]
+  ) -> float:
+    if len(nums1) > len(nums2):
+      # simplify the logic by enforcing that `nums1` is always smaller or equal size to nums2
+      return self.findMedianSortedArrays(nums2, nums1)
+
+    m, n = len(nums1), len(nums2)
+    left, right = 0, m
+
+    while left <= right:
+      partitionA = (left + right) // 2
+      partitionB = (m + n + 1) // 2 - partitionA
+
+      maxLeftA = (
+        float("-inf") if partitionA == 0 else nums1[partitionA - 1]
+      )
+      minRightA = float("inf") if partitionA == m else nums1[partitionA]
+      maxLeftB = (
+        float("-inf") if partitionB == 0 else nums2[partitionB - 1]
+      )
+      minRightB = float("inf") if partitionB == n else nums2[partitionB]
+
+      if maxLeftA <= minRightB and maxLeftB <= minRightA:
+        if (m + n) % 2 == 0:
+          return (
+              max(maxLeftA, maxLeftB) + min(minRightA, minRightB)
+          ) / 2
+        else:
+          return max(maxLeftA, maxLeftB)
+      elif maxLeftA > minRightB:
+        right = partitionA - 1
+      else:
+        left = partitionA + 1
+
   # this requires both O(m + n) time and memory
   def findMedianSortedArraysSlow(self, nums1: List[int], nums2: List[int]) -> float:
     out = []
@@ -112,7 +147,6 @@ class Solution:
     else:
       median_2 = search_recursively(total_min, total_max + 1, median_i2)
       return (median_1 + median_2) / 2
-
 
 
 tests = [
